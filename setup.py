@@ -2,55 +2,115 @@ from setuptools import setup, Extension
 import os
 import sys
 
-# Build c modules
-cpp_modules = ["oa2a"]
-cpp_ext_modules = list()
+# Build OA modules
+def build_oa_module():
+    oa_modules = ["oabase"]
+    oa_ext_modules = list()
 
-script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-cpp_modules_path = os.path.join(script_path, "HyperSCH","oa2")
-include_path = cpp_modules_path
+    script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+    oa_modules_path = os.path.join(script_path, "HyperSCH","oa")
 
-libpath = os.path.join(script_path, "build")
+    include_path = oa_modules_path
 
-oalib_path = os.path.join(script_path, "oalib", "win", "x86_64")
+    oalib_path = os.path.join(script_path, "oalib", "win", "x86_64", "lib")
+
+    for oamod in oa_modules:
+        mod_path = os.path.join(oa_modules_path, oamod)
+
+        src_files = list()
+        src_files.append(os.path.join(mod_path, oamod) + ".i")
+
+        for file in os.listdir(mod_path):
+            if file.endswith(".cpp") and "_wrap" not in file:
+                src_files.append(os.path.join(mod_path, file))
+
+        ext_mod = Extension("_" + oamod,
+            sources=src_files,
+            include_dirs=[include_path],
+            library_dirs=[oalib_path],
+            libraries = ["oaBase"],
+            extra_compile_args = ["/EHsc"],
+            swig_opts=["-c++"])
+
+        oa_ext_modules.append(ext_mod)
+
+    # Set arguments
+    setup_path = sys.argv[0]
+    setup_cmd = None
+    if len(sys.argv) > 1:
+        # Read setup command
+        setup_cmd = sys.argv[1]
+
+    lib_path = os.path.join(script_path, "lib")
+    if setup_cmd == 'clean':
+        # Clean build
+        sys.argv = [setup_path, setup_cmd, '--all', '--build-lib', lib_path]
+    else:
+        # Build
+        sys.argv = [setup_path, 'build_ext', '--build-lib', lib_path]
+
+    setup(
+        name="oamodules",
+        ext_modules=oa_ext_modules,
+        py_modules=oa_modules
+    )
 
 
-for cmod in cpp_modules:
-    mod_path = os.path.join(cpp_modules_path, cmod)
 
-    src_files = list()
-    src_files.append(os.path.join(mod_path, cmod) + ".i")
+def build_cpp_module():
 
-    for file in os.listdir(mod_path):
-        if file.endswith(".cpp") and "_wrap" not in file:
-            src_files.append(os.path.join(mod_path, file))
+    # Build c modules
+    cpp_modules = ["oa2a"]
+    cpp_ext_modules = list()
 
-    ext_mod = Extension("_" + cmod, sources=src_files,
-        include_dirs=[include_path],
-        library_dirs=[oalib_path],
-        libraries = ["oaBase"],
-        extra_compile_args = ["/EHsc"],
-        swig_opts=["-c++"])
-    cpp_ext_modules.append(ext_mod)
+    script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+    cpp_modules_path = os.path.join(script_path, "HyperSCH","oa2")
+    include_path = cpp_modules_path
 
-# Set arguments
-setup_path = sys.argv[0]
-setup_cmd = None
-if len(sys.argv) > 1:
-    # Read setup command
-    setup_cmd = sys.argv[1]
+    libpath = os.path.join(script_path, "build")
 
-lib_path = os.path.join(script_path, "lib")
-if setup_cmd == 'clean':
-    # Clean build
-    sys.argv = [setup_path, setup_cmd, '--all', '--build-lib', lib_path]
-else:
-    # Build
-    sys.argv = [setup_path, 'build_ext', '--build-lib', lib_path]
+    oalib_path = os.path.join(script_path, "oalib", "win", "x86_64")
 
 
-setup(
-    name="cppmodules",
-    ext_modules=cpp_ext_modules,
-    py_modules=cpp_modules
-)
+    for cmod in cpp_modules:
+        mod_path = os.path.join(cpp_modules_path, cmod)
+
+        src_files = list()
+        src_files.append(os.path.join(mod_path, cmod) + ".i")
+
+        for file in os.listdir(mod_path):
+            if file.endswith(".cpp") and "_wrap" not in file:
+                src_files.append(os.path.join(mod_path, file))
+
+        ext_mod = Extension("_" + cmod, sources=src_files,
+            include_dirs=[include_path],
+            library_dirs=[oalib_path],
+            libraries = ["oaBase"],
+            extra_compile_args = ["/EHsc"],
+            swig_opts=["-c++"])
+        cpp_ext_modules.append(ext_mod)
+
+    # Set arguments
+    setup_path = sys.argv[0]
+    setup_cmd = None
+    if len(sys.argv) > 1:
+        # Read setup command
+        setup_cmd = sys.argv[1]
+
+    lib_path = os.path.join(script_path, "lib")
+    if setup_cmd == 'clean':
+        # Clean build
+        sys.argv = [setup_path, setup_cmd, '--all', '--build-lib', lib_path]
+    else:
+        # Build
+        sys.argv = [setup_path, 'build_ext', '--build-lib', lib_path]
+
+
+    setup(
+        name="cppmodules",
+        ext_modules=cpp_ext_modules,
+        py_modules=cpp_modules
+    )
+
+# Build
+build_oa_module()

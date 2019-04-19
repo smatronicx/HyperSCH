@@ -1,3 +1,9 @@
+*.pyc
+
+HyperSCH/oa/**/*_wrap.cpp
+HyperSCH/oa/**/*.py
+!HyperSCH/oa/**/__init__.py
+
 oalib
 build
 lib

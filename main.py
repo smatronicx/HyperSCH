@@ -31,7 +31,7 @@ sys.path.append(lib_path)
 sys.path.append(oalib_path)
 os.environ['PATH'] = lib_path + os.pathsep + os.environ['PATH']
 
-#import oahelper.header_builder
+import oahelper.header_builder
 
 #oahelper.header_builder
 
