@@ -134,6 +134,14 @@ def SplitFunction(line):
     tlist.append(tval)
     return tlist
 
+def CheckBraces(line):
+    # Check if there are more than 1 '(' in line
+    tokens = line.split("(")
+    if len(tokens) > 2:
+        return 1
+
+    return 0
+
 def GetFunctions(line):
     flist = SplitFunction(line)
     ftype = " ".join(flist[0:-1])
@@ -178,12 +186,31 @@ class_list = dict();
 # Get all classes
 with open(filename, 'r') as fp:
     for line in fp:
-        if line.startswith("OpenAccess_4"):
+        fn = SplitFunction(line)
+        rtn = CheckBraces(line)
+        if rtn == 1:
+            print line
+            
+        #if not line.startswith("OpenAccess_4"):
+        if False:
+            if "operator" not in line:
+                if "vftable" not in line:
+                    if "Schema" not in line:
+                        if "default" not in line:
+                            if not line.startswith("struct"):
+                                if "oaHierGroupDef" in line:
+                                    if "create" in line:
+                                        #print fn
+                                        print line
+        if False:
+        #if line.startswith("OpenAccess_4"):
             cname = GetClassName(line)
             if cname is not None:
                 if cname not in class_list:
                     class_list[cname] = dict()
                     class_list[cname]["written"] = 0
+
+exit(0)
 
 all_lines_step0 = list()
 with open(filename, 'r') as fp:
